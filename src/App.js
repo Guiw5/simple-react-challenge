@@ -5,9 +5,21 @@ class App extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      items: [{ id: 1, value: 'Tu Vieja' }],
+      items: [{ id: 1, value: 'Frits & Cheese' }],
       showModal: false
     }
+  }
+
+  handleDelete = key => {
+    this.setState(prevState => {
+      return { ...prevState, items: prevState.items.filter(i => i.key === key) }
+    })
+  }
+
+  showModal = () => {
+    this.setState(prevState => {
+      return { ...prevState, showModal: !prevState.showModal }
+    })
   }
 
   render() {
@@ -23,13 +35,13 @@ class App extends Component {
             </div>
           </div>
           {this.state.items.map(item => (
-            <Item key={item.id} text={item.value} />
+            <Item
+              key={item.id}
+              text={item.value}
+              onClick={() => this.handleDelete(item.id)}
+            />
           ))}
-          <button
-            onClick={() => this.setState({ showModal: !this.state.showModal })}
-          >
-            Add Item
-          </button>
+          <button onClick={this.showModal}>Add Item</button>
           {this.state.showModal ? <Modal /> : null}
         </div>
       </div>
@@ -54,10 +66,7 @@ export const Item = props => {
       }}
     >
       <li key={props.id}>{props.text}</li>
-      <i
-        className="fas fa-trash-alt"
-        onClick={() => props.onClick(props.key)}
-      />
+      <i className="fas fa-trash-alt" onClick={() => props.onClick(props.id)} />
     </div>
   )
 }
