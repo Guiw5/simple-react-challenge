@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React, { Component, PureComponent } from 'react'
 import './App.css'
 
 class App extends Component {
@@ -10,16 +10,31 @@ class App extends Component {
     }
   }
 
-  handleDelete = key => {
-    this.setState(prevState => {
-      return { ...prevState, items: prevState.items.filter(i => i.key === key) }
-    })
+  deleteItem = key => {
+    this.setState(prevState => ({
+      ...prevState,
+      items: prevState.items.filter(i => i.id !== key)
+    }))
+  }
+
+  addItem = value => {
+    let item = {
+      id: new Date().getTime(),
+      value
+    }
+
+    this.setState(prevState => ({
+      ...prevState,
+      showModal: !prevState.showModal,
+      items: [...prevState.items, item]
+    }))
   }
 
   showModal = () => {
-    this.setState(prevState => {
-      return { ...prevState, showModal: !prevState.showModal }
-    })
+    this.setState(prevState => ({
+      ...prevState,
+      showModal: !prevState.showModal
+    }))
   }
 
   render() {
@@ -31,18 +46,26 @@ class App extends Component {
           <div className="App-Header">
             <div className="App-Title">{'Supermarket List'}</div>
             <div className="App-Subtitle">
-              {`${len} ITEM${len !== 1 ? 'S' : ''}`}
+              {len === 0
+                ? 'LIST IS EMPTY'
+                : `${len} ITEM${len !== 1 ? 'S' : ''}`}
             </div>
           </div>
           {this.state.items.map(item => (
             <Item
               key={item.id}
               text={item.value}
-              onClick={() => this.handleDelete(item.id)}
+              onClick={() => this.deleteItem(item.id)}
             />
           ))}
-          <button onClick={this.showModal}>Add Item</button>
-          {this.state.showModal ? <Modal /> : null}
+          <button
+            className="btn primary"
+            children="Add Item"
+            onClick={this.showModal}
+          />
+          {this.state.showModal ? (
+            <Modal onCancel={this.showModal} onOk={this.addItem} />
+          ) : null}
         </div>
       </div>
     )
@@ -53,30 +76,61 @@ export default App
 
 export const Item = props => {
   return (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        width: '300px',
-        padding: '10px',
-        backgroundColor: '#fff',
-        fontSize: '13px',
-        fontWeight: '800'
-      }}
-    >
+    <div className="item spacing">
       <li key={props.id}>{props.text}</li>
-      <i className="fas fa-trash-alt" onClick={() => props.onClick(props.id)} />
+      <i
+        className="far fa-trash-alt"
+        style={{ color: '#b8b8b8' }}
+        onClick={() => props.onClick(props.id)}
+      />
     </div>
   )
 }
 
-export const Modal = () => {
-  return (
-    <div>
-      <div>Header</div>
-      <input type="text" />
-      <div>Footer</div>
-    </div>
-  )
+export class Modal extends PureComponent {
+  constructor(props) {
+    super(props)
+    this.input = React.createRef()
+    this.okButton = React.createRef()
+  }
+
+  onOk = () => {
+    let itemValue = this.input.current.value
+    this.props.onOk(itemValue)
+  }
+
+  onChange = () => {
+    this.okButton.current.className = this.input.current.value
+      ? 'btn primary sm'
+      : 'btn secondary sm'
+  }
+
+  render() {
+    return (
+      <div className="modal">
+        <div className="modal-content">
+          <span className="modal-title" children="Add Item" />
+          <input
+            className="input"
+            type="text"
+            ref={this.input}
+            onChange={this.onChange}
+          />
+          <div className="spacing">
+            <button
+              className="btn default sm"
+              children="Cancel"
+              onClick={this.props.onCancel}
+            />
+            <button
+              className="btn secondary sm"
+              children="Add"
+              ref={this.okButton}
+              onClick={this.onOk}
+            />
+          </div>
+        </div>
+      </div>
+    )
+  }
 }
