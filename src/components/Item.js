@@ -4,7 +4,7 @@ export const Item = props => {
   let { id, value } = props.item
   return (
     <div className="item spacing">
-      <li key={id}>{value}</li>
+      <li>{value}</li>
       <i
         className="far fa-trash-alt"
         style={{ color: '#b8b8b8' }}

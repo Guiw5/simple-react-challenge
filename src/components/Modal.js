@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react'
 
 export class Modal extends PureComponent {
   state = {
-    value: null
+    value: ''
   }
 
   onOk = () => this.props.onOk(this.state.value)
@@ -22,7 +22,6 @@ export class Modal extends PureComponent {
             type="text"
             value={value}
             autoFocus
-            autoCapitalize
             onChange={this.handleChange}
             onKeyPress={e => e.charCode === 13 && this.onOk()}
           />

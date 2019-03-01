@@ -23,7 +23,7 @@ export class ItemList extends Component {
       <div className="App-Body">
         {this.props.items !== null &&
           this.props.items.map(item => (
-            <Item item={item} onClick={this.props.deleteItem} />
+            <Item key={item.id} item={item} onClick={this.props.deleteItem} />
           ))}
         <button
           className="btn primary"
