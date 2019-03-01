@@ -1,136 +1,66 @@
-import React, { Component, PureComponent } from 'react'
+import React, { Component } from 'react'
+import { SupermarketList } from './components/SupermarketList'
 import './App.css'
+import config from './config.json'
+import {
+  deleteItem as deleteItemApi,
+  addItem as addItemApi,
+  getAllItems as getAllItemsApi
+} from './http/api'
 
 class App extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      items: [{ id: 1, value: 'Frits & Cheese' }],
-      showModal: false
+      items: []
     }
   }
 
-  deleteItem = key => {
-    this.setState(prevState => ({
-      ...prevState,
-      items: prevState.items.filter(i => i.id !== key)
-    }))
+  async componentDidMount() {
+    let items = await this.getItems()
+    this.setState({ items })
   }
 
-  addItem = value => {
-    let item = {
-      id: new Date().getTime(),
-      value
+  getItems = async () => {
+    if (config.apiEnable) return await getAllItemsApi()
+    else return await this.state.items
+  }
+
+  deleteItem = async id => {
+    if (config.apiEnable) {
+      let items = await deleteItemApi(id)
+      console.log('llamada delete ', items)
+      this.setState({ items })
+    } else {
+      this.setState(prevState => ({
+        items: prevState.items.filter(i => i.id !== id)
+      }))
     }
-
-    this.setState(prevState => ({
-      ...prevState,
-      showModal: !prevState.showModal,
-      items: [...prevState.items, item]
-    }))
   }
 
-  showModal = () => {
-    this.setState(prevState => ({
-      ...prevState,
-      showModal: !prevState.showModal
-    }))
+  addItem = async value => {
+    let id = new Date().getTime()
+    let item = { id, value }
+
+    if (config.apiEnable) {
+      let items = await addItemApi(item)
+      this.setState({ items })
+    } else {
+      this.setState(prevState => ({
+        items: [...prevState.items, item]
+      }))
+    }
   }
 
   render() {
-    let len = this.state.items.length
-
     return (
-      <div className="App">
-        <div className="App-Content">
-          <div className="App-Header">
-            <div className="App-Title">{'Supermarket List'}</div>
-            <div className="App-Subtitle">
-              {len === 0
-                ? 'LIST IS EMPTY'
-                : `${len} ITEM${len !== 1 ? 'S' : ''}`}
-            </div>
-          </div>
-          {this.state.items.map(item => (
-            <Item
-              key={item.id}
-              text={item.value}
-              onClick={() => this.deleteItem(item.id)}
-            />
-          ))}
-          <button
-            className="btn primary"
-            children="Add Item"
-            onClick={this.showModal}
-          />
-          {this.state.showModal ? (
-            <Modal onCancel={this.showModal} onOk={this.addItem} />
-          ) : null}
-        </div>
-      </div>
+      <SupermarketList
+        items={this.state.items}
+        addItem={this.addItem}
+        deleteItem={this.deleteItem}
+      />
     )
   }
 }
 
 export default App
-
-export const Item = props => {
-  return (
-    <div className="item spacing">
-      <li key={props.id}>{props.text}</li>
-      <i
-        className="far fa-trash-alt"
-        style={{ color: '#b8b8b8' }}
-        onClick={() => props.onClick(props.id)}
-      />
-    </div>
-  )
-}
-
-export class Modal extends PureComponent {
-  constructor(props) {
-    super(props)
-    this.input = React.createRef()
-    this.okButton = React.createRef()
-  }
-
-  onOk = () => {
-    let itemValue = this.input.current.value
-    this.props.onOk(itemValue)
-  }
-
-  onChange = () => {
-    this.okButton.current.className = this.input.current.value
-      ? 'btn primary sm'
-      : 'btn secondary sm'
-  }
-
-  render() {
-    return (
-      <div className="modal">
-        <div className="modal-content">
-          <span className="modal-title" children="Add Item" />
-          <input
-            className="input"
-            type="text"
-            ref={this.input}
-            onChange={this.onChange}
-          />
-          <div className="spacing">
-            <button
-              className="btn default sm"
-              children="Cancel"
-              onClick={this.props.onCancel}
-            />
-            <button
-              className="btn secondary sm"
-              children="Add"
-              ref={this.okButton}
-              onClick={this.onOk}
-            />
-          </div>
-        </div>
-      </div>
-    )
-  }
-}
