@@ -1,31 +1,18 @@
 import React, { PureComponent } from 'react'
 
 export class Modal extends PureComponent {
-  constructor(props) {
-    super(props)
-    this.input = React.createRef()
-    this.okButton = React.createRef()
+  state = {
+    value: null
   }
-  componentDidMount() {
-    this.input.current.focus()
+
+  onOk = () => this.props.onOk(this.state.value)
+
+  handleChange = e => {
+    this.setState({ value: e.target.value })
   }
-  onOk = () => {
-    let itemValue = this.input.current.value
-    this.props.onOk(itemValue)
-  }
-  onChange = () => {
-    let className = this.okButton.current.className
-    if (this.input.current.value) {
-      //change to enable color
-      if (!className.includes('primary'))
-        this.okButton.current.className = 'btn primary sm'
-    } else {
-      //change to disable color
-      if (!className.includes('secondary'))
-        this.okButton.current.className = 'btn secondary sm'
-    }
-  }
+
   render() {
+    let { value } = this.state
     return (
       <div className="modal">
         <div className="modal-content">
@@ -33,8 +20,10 @@ export class Modal extends PureComponent {
           <input
             className="input"
             type="text"
-            ref={this.input}
-            onChange={this.onChange}
+            value={value}
+            autoFocus
+            autoCapitalize
+            onChange={this.handleChange}
             onKeyPress={e => e.charCode === 13 && this.onOk()}
           />
           <div className="spacing">
@@ -44,9 +33,9 @@ export class Modal extends PureComponent {
               onClick={this.props.onCancel}
             />
             <button
-              className="btn secondary sm"
+              className={`btn ${value ? 'primary' : 'secondary'} sm`}
+              disabled={!value}
               children="Add"
-              ref={this.okButton}
               onClick={this.onOk}
             />
           </div>

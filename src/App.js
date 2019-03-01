@@ -17,19 +17,19 @@ class App extends Component {
   }
 
   async componentDidMount() {
-    let items = await this.getItems()
-    this.setState({ items })
+    await this.getItems()
   }
 
   getItems = async () => {
-    if (config.apiEnable) return await getAllItemsApi()
-    else return await this.state.items
+    if (config.apiEnable) {
+      let items = await getAllItemsApi()
+      this.setState({ items })
+    } else return this.state.items
   }
 
   deleteItem = async id => {
     if (config.apiEnable) {
       let items = await deleteItemApi(id)
-      console.log('llamada delete ', items)
       this.setState({ items })
     } else {
       this.setState(prevState => ({

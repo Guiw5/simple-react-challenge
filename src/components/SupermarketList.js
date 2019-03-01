@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react'
+import React from 'react'
 import { Header } from './Header'
 import { ItemList } from './ItemList'
 
@@ -14,7 +14,7 @@ export const SupermarketList = props => {
           }
         />
         <ItemList
-          items={items}
+          items={props.items}
           deleteItem={props.deleteItem}
           addItem={props.addItem}
         />

@@ -16,9 +16,7 @@ export const addItem = async item => {
 
 export const deleteItem = async id => {
   let prevItems = JSON.parse(localStorage.getItem('items'))
-  console.log('prevItems', prevItems)
   let items = prevItems.filter(i => i.id !== id)
-  console.log('items', items)
   localStorage.setItem('items', JSON.stringify(items))
   await delay(100)
   return items
